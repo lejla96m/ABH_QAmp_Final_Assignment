@@ -26,7 +26,7 @@ public class QueriesPage {
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.id("status_" + reportId)));
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.id("request_" + reportId)));
 
-                    driver.findElement(By.cssSelector("a[id='request_183469']"))
+                    driver.findElement(By.cssSelector("a[id='request_" + reportId + "']"))
                             .click();
 
                 /*    WebElement element = driver.findElement(By.id("request_" + reportId));
