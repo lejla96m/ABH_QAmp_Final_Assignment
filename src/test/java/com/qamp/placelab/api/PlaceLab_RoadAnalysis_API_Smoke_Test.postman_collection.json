@@ -1,0 +1,290 @@
+{
+	"info": {
+		"_postman_id": "6007ca05-02e2-4917-89e8-6279f947bb85",
+		"name": "PlaceLab_RoadAnalysis_API_Smoke_Test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27472333"
+	},
+	"item": [
+		{
+			"name": "Obtaining auth token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful POST request\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code name has string Created\", function() {\r",
+							"    pm.response.to.have.status(\"Created\");\r",
+							"});\r",
+							"\r",
+							"var contentTypeHeaderExists = responseHeaders.hasOwnProperty(\"Content-Type\");\r",
+							"tests[\"Has Content-Type\"] = contentTypeHeaderExists;\r",
+							"\r",
+							"if (contentTypeHeaderExists) {\r",
+							"    tests[\"Content-Type is application/json\"] = \r",
+							"      responseHeaders[\"Content-Type\"].has(\"application/json\");\r",
+							"}\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Validate the data type of response\"), function() {\r",
+							"    pm.expect(jsonData).to.be.an(\"object\");\r",
+							"    pm.expect(jsonData.api_token).to.be.a(\"string\");\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Validate response body\", function() {\r",
+							"    pm.response.to.have.jsonBody(\"api_token\");\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"});\r",
+							"\r",
+							"var jsonVariable = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"token\", jsonVariable.api_token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n     \"email\" : \"{{email}}\" ,\r\n     \"password\" : \"{{password}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/v2/sessions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"sessions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Creating Road Analysis Report",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function() {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code name is Created\", function() {\r",
+							"    pm.response.to.have.status(\"Created\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Validate response body\", function() {\r",
+							"    pm.response.to.have.jsonBody(\"id\");\r",
+							"    pm.response.to.not.have.jsonBody(\"error\");\r",
+							"    pm.response.to.have.jsonBody(\"status\");\r",
+							"});\r",
+							"\r",
+							"var jsonVariable = JSON.parse(responseBody);\r",
+							"pm.environment.set(\"id\", jsonVariable.id);\r",
+							"\r",
+							"var contentTypeHeaderExists = responseHeaders.hasOwnProperty(\"Content-Type\");\r",
+							"tests[\"Has Content-Type\"] = contentTypeHeaderExists;\r",
+							"\r",
+							"if (contentTypeHeaderExists) {\r",
+							"    tests[\"Content-Type is application/json\"] = \r",
+							"      responseHeaders[\"Content-Type\"].has(\"application/json\");\r",
+							"}\r",
+							"\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Validate data type of response\"), function() {\r",
+							"    pm.expect(jsonData).to.be.an(\"object\");\r",
+							"};"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/W10/QAMP/workspace/ABH_QAMP_Final_Assignment/src/test/java/com/qamp/placelab/ui/utilities/files/roads_sample.txt"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{host}}/api/v2/reports/road_analysis?name=API+Road+Analysis+Report+{{$randomInt}}&file={{file}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"reports",
+						"road_analysis"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "API+Road+Analysis+Report+{{$randomInt}}"
+						},
+						{
+							"key": "file",
+							"value": "{{file}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtaining Road Analysis Report Status",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var responseJson = JSON.parse(responseBody);\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"if (responseJson.state != \"FINISHED\") {\r",
+							"\r",
+							"    console.log(\"Retray request\");\r",
+							"    retryRequest();\r",
+							"    return;\r",
+							"} else {\r",
+							"    validateResponse();\r",
+							"    return;\r",
+							"}\r",
+							"\r",
+							"function retryRequest() {\r",
+							"\r",
+							"    if(responseBody.state != \"INVALID FILE\") {\r",
+							"        postman.setNextRequest(pm.info.id);\r",
+							"    } else {\r",
+							"        validateResponse();\r",
+							"        return;\r",
+							"    }\r",
+							"}\r",
+							"\r",
+							"function validateResponse() {\r",
+							"    pm.test(\"Verify response\", () => {\r",
+							"        pm.expect(pm.response.code).to.eql(200);\r",
+							"        pm.expect(responseJson.state).to.be.a(\"string\");\r",
+							"        pm.expect(responseJson.state).to.be.eql(\"FINISHED\");\r",
+							"    });\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/api/v2/reports/{{id}}/status",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"reports",
+						"{{id}}",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Downloading Road Analysis Report result file",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status code name has string OK\", function() {\r",
+							"    pm.response.to.have.status(\"OK\");\r",
+							"});\r",
+							"\r",
+							"var contentTypeHeaderExists = responseHeaders.hasOwnProperty(\"Content-Type\");\r",
+							"tests[\"Has Content-Type\"] = contentTypeHeaderExists;\r",
+							"\r",
+							"if (contentTypeHeaderExists) {\r",
+							"    tests[\"Content-Type is text/csv\"] = \r",
+							"      responseHeaders[\"Content-Type\"].has(\"text/csv\");\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Result columns are RECORD_ID, STATUS, COMMENT\", function() {\r",
+							"    pm.response.to.have.body(\"RECORD_ID\");\r",
+							"    pm.response.to.have.body(\"STATUS\");\r",
+							"    pm.response.to.have.body(\"COMMENT\");\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/api/v2/reports/{{id}}/download",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"v2",
+						"reports",
+						"{{id}}",
+						"download"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

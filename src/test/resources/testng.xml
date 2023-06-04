@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Smoke suite" verbose="1">
+    <parameter name="browser" value="chrome"/>
+    <test name="PlaceLab Module: ROADS - Road Analysis Report">
+        <classes>
+            <class name="com.qamp.placelab.ui.roads.RoadAnalysisReportTests"/>
+        </classes>
+    </test>
+</suite>
